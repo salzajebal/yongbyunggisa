@@ -437,7 +437,11 @@ export default function AdminPage() {
                       const url = window.prompt("삽입할 이미지 URL을 입력하세요 (https://...)");
                       if (!url) return;
                       const caption = window.prompt("이미지 캡션 (선택, 비워두면 캡션 없음)", "") || "";
-                      setEditBody([...editBody, `![${caption}](${url.trim()})`]);
+                      const link = window.prompt("이미지 클릭 시 이동할 URL (선택, 비워두면 링크 없음)", "") || "";
+                      const md = link.trim()
+                        ? `[![${caption}](${url.trim()})](${link.trim()})`
+                        : `![${caption}](${url.trim()})`;
+                      setEditBody([...editBody, md]);
                     }}
                     style={{ ...btnStyle, backgroundColor: "#6366f1", padding: "7px 14px", fontSize: 13 }}
                   >
@@ -451,15 +455,21 @@ export default function AdminPage() {
                       const url = await uploadFile(f, "body");
                       if (!url) return;
                       const caption = window.prompt("이미지 캡션 (선택, 비워두면 캡션 없음)", "") || "";
-                      setEditBody([...editBody, `![${caption}](${url})`]);
+                      const link = window.prompt("이미지 클릭 시 이동할 URL (선택, 비워두면 링크 없음)", "") || "";
+                      const md = link.trim()
+                        ? `[![${caption}](${url})](${link.trim()})`
+                        : `![${caption}](${url})`;
+                      setEditBody([...editBody, md]);
                     }} />
                   </label>
                 </div>
               </div>
               <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16, lineHeight: 1.6, padding: "8px 12px", backgroundColor: "#f9fafb", borderRadius: 6, border: "1px solid #e5e7eb" }}>
-                💡 본문 중간에 이미지를 넣으려면 <strong>+ 파일로 이미지</strong>(직접 업로드) 또는 <strong>+ URL로 이미지</strong> 버튼을 누르거나, 문단에 직접{" "}
+                💡 본문 중간에 이미지를 넣으려면 <strong>+ 파일로 이미지</strong>(직접 업로드) 또는 <strong>+ URL로 이미지</strong> 버튼을 누르세요. 직접 입력하려면{" "}
                 <code style={{ backgroundColor: "#fff", padding: "1px 5px", borderRadius: 3, border: "1px solid #e5e7eb" }}>![캡션](이미지URL)</code>{" "}
-                형식으로 입력하세요. 한 문단 전체가 이 형식일 때 이미지로 렌더링됩니다. 문단 순서를 바꾸려면 ↑↓ 버튼을 사용하세요.
+                형식, 클릭 시 이동할 링크를 넣으려면{" "}
+                <code style={{ backgroundColor: "#fff", padding: "1px 5px", borderRadius: 3, border: "1px solid #e5e7eb" }}>[![캡션](이미지URL)](링크URL)</code>{" "}
+                형식으로 입력하세요. 한 문단 전체가 이 형식일 때 이미지로 렌더링됩니다.
               </p>
               {editBody.map((para, i) => {
                 const imgMatch = para.trim().match(/^!\[([^\]]*)\]\(([^)]+)\)$/);

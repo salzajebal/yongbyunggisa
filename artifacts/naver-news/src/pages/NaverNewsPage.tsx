@@ -286,12 +286,18 @@ export default function NaverNewsPage() {
               <div className="nv-body" style={{ fontSize: 17, lineHeight: 1.8, color: "#1a1a1a", marginBottom: 30 }}>
                 {body.map((para, i) => {
                   const trimmed = para.trim();
-                  const imgMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-                  if (imgMatch) {
-                    const [, alt, url] = imgMatch;
+                  const linkedImg = trimmed.match(/^\[!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)$/);
+                  const imgMatch = !linkedImg ? trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/) : null;
+                  if (linkedImg || imgMatch) {
+                    const alt = (linkedImg ?? imgMatch)![1];
+                    const url = (linkedImg ?? imgMatch)![2];
+                    const link = linkedImg ? linkedImg[3] : null;
+                    const img = (
+                      <img src={url} alt={alt || "본문 이미지"} style={{ width: "100%", display: "block", borderRadius: 2, cursor: link ? "pointer" : "default" }} onError={(e) => { e.currentTarget.style.backgroundColor = "#f0f0f0"; e.currentTarget.style.minHeight = "200px"; }} />
+                    );
                     return (
                       <figure key={i} style={{ margin: "0 0 20px" }}>
-                        <img src={url} alt={alt || "본문 이미지"} style={{ width: "100%", display: "block", borderRadius: 2 }} onError={(e) => { e.currentTarget.style.backgroundColor = "#f0f0f0"; e.currentTarget.style.minHeight = "200px"; }} />
+                        {link ? <a href={link} target="_blank" rel="noopener noreferrer">{img}</a> : img}
                         {alt && <figcaption style={{ fontSize: 13, color: "#595959", marginTop: 8, lineHeight: 1.5 }}>{alt}</figcaption>}
                       </figure>
                     );
