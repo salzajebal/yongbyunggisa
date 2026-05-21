@@ -3,40 +3,58 @@ import { useState, useEffect } from "react";
 const JOONGANG_LOGO =
   "https://mimgnews.pstatic.net/image/upload/office_logo/025/2025/03/07/logo_025_100_20250307145712.png";
 
+const navTabs = [
+  { label: "주요뉴스", href: "https://news.naver.com/" },
+  { label: "프리미엄", href: "https://news.naver.com/premium/" },
+  { label: "이슈", href: "https://news.naver.com/" },
+  { label: "클립", href: "https://news.naver.com/now/" },
+  { label: "지면", href: "https://news.naver.com/paper/" },
+  { label: "정치", href: "https://news.naver.com/section/100" },
+  { label: "경제", href: "https://news.naver.com/section/101" },
+  { label: "사회", href: "https://news.naver.com/section/102" },
+  { label: "생활", href: "https://news.naver.com/section/103" },
+  { label: "세계", href: "https://news.naver.com/section/104" },
+  { label: "IT", href: "https://news.naver.com/section/105" },
+  { label: "사/칼럼", href: "https://news.naver.com/opinion/" },
+  { label: "신문보기", href: "https://news.naver.com/paper/" },
+  { label: "랭킹", href: "https://news.naver.com/ranking/" },
+  { label: "MY", href: "https://news.naver.com/" },
+];
+
 const rankingNews = [
-  { rank: 1, img: "https://imgnews.pstatic.net/image/origin/025/2026/05/20/3524642.jpg?type=nf284_284", title: "눈 마주치면 무려 치고, 5년간 보복...", badge: null },
-  { rank: 2, img: "https://imgnews.pstatic.net/image/origin/025/2026/05/20/3524640.jpg?type=nf284_284", title: "하정우 35 박민식 20 한동훈 31...단일...", badge: null },
-  { rank: 3, img: "https://imgnews.pstatic.net/image/origin/025/2026/05/20/3524600.jpg?type=nf284_284", title: "'탱크 텀블러' 든 전두환...'스벅 돈 탈내...", badge: null },
-  { rank: 4, img: "https://imgnews.pstatic.net/image/origin/025/2026/05/20/3524574.jpg?type=nf284_284", title: "삼전 특별성과급 전액 자사주로 준다...", badge: "1:34" },
-  { rank: 5, img: "https://imgnews.pstatic.net/image/origin/025/2026/05/20/3524560.jpg?type=nf284_284", title: '"커피는 스벅"…尹탄핵 반대 배우 최준...', badge: null },
-  { rank: 6, img: "https://imgnews.pstatic.net/image/origin/025/2026/05/20/3524530.jpg?type=nf284_284", title: '"임신 몰랐다"더 나니...\'모텔 출산 후...', badge: null },
+  { rank: 1, img: "https://imgnews.pstatic.net/image/origin/025/2026/05/20/3524642.jpg?type=nf284_284", title: "눈 마주치면 무려 치고, 5년간 보복...", badge: null, href: "https://n.news.naver.com/article/025/0003524642" },
+  { rank: 2, img: "https://imgnews.pstatic.net/image/origin/025/2026/05/20/3524640.jpg?type=nf284_284", title: "하정우 35 박민식 20 한동훈 31...단일...", badge: null, href: "https://n.news.naver.com/article/025/0003524640" },
+  { rank: 3, img: "https://imgnews.pstatic.net/image/origin/025/2026/05/20/3524600.jpg?type=nf284_284", title: "'탱크 텀블러' 든 전두환...'스벅 돈 탈내...", badge: null, href: "https://n.news.naver.com/article/025/0003524600" },
+  { rank: 4, img: "https://imgnews.pstatic.net/image/origin/025/2026/05/20/3524574.jpg?type=nf284_284", title: "삼전 특별성과급 전액 자사주로 준다...", badge: "1:34", href: "https://n.news.naver.com/article/025/0003524574" },
+  { rank: 5, img: "https://imgnews.pstatic.net/image/origin/025/2026/05/20/3524560.jpg?type=nf284_284", title: '"커피는 스벅"…尹탄핵 반대 배우 최준...', badge: null, href: "https://n.news.naver.com/article/025/0003524560" },
+  { rank: 6, img: "https://imgnews.pstatic.net/image/origin/025/2026/05/20/3524530.jpg?type=nf284_284", title: '"임신 몰랐다"더 나니...\'모텔 출산 후...', badge: null, href: "https://n.news.naver.com/article/025/0003524530" },
 ];
 
 const otherSources = [
-  { name: "노컷뉴스", color: "#e81111" },
-  { name: "SBS", color: "#1a6de8" },
-  { name: "파이낸셜뉴스", color: "#e8a011" },
-  { name: "아시아경제", color: "#e87211" },
-  { name: "비즈워치", color: "#1176e8" },
-  { name: "중앙일보", color: "#e81111" },
-  { name: "이데일리", color: "#e87211" },
-  { name: "YTN", color: "#e81111" },
+  { name: "노컷뉴스", color: "#e81111", href: "https://media.naver.com/press/079" },
+  { name: "SBS", color: "#1a6de8", href: "https://media.naver.com/press/055" },
+  { name: "파이낸셜뉴스", color: "#e8a011", href: "https://media.naver.com/press/014" },
+  { name: "아시아경제", color: "#e87211", href: "https://media.naver.com/press/277" },
+  { name: "비즈워치", color: "#1176e8", href: "https://media.naver.com/press/648" },
+  { name: "중앙일보", color: "#e81111", href: "https://media.naver.com/press/025" },
+  { name: "이데일리", color: "#e87211", href: "https://media.naver.com/press/018" },
+  { name: "YTN", color: "#e81111", href: "https://media.naver.com/press/052" },
 ];
 
 const relatedArticles = [
-  "한동훈, 일진과 맞짱…'금목걸이 장발' 서울대 뒤집다",
-  "27만원→101만원 됐다…삼전 제친 '新황제주' 정체",
-  "내신 9등급도 의사 된다? 대치맘이 유학 보낸 곳",
-  "50대 남녀 '기내 성관계'…아이가 보고 한 일 깜짝",
-  '"입주민끼리 결혼" 그 강남 아파트 발칵…이번엔 뭔일',
+  { title: "한동훈, 일진과 맞짱…'금목걸이 장발' 서울대 뒤집다", href: "https://www.joongang.co.kr/article/25429794" },
+  { title: "27만원→101만원 됐다…삼전 제친 '新황제주' 정체", href: "https://www.joongang.co.kr/article/25429795" },
+  { title: "내신 9등급도 의사 된다? 대치맘이 유학 보낸 곳", href: "https://www.joongang.co.kr/article/25429798" },
+  { title: "50대 남녀 '기내 성관계'…아이가 보고 한 일 깜짝", href: "https://www.joongang.co.kr/article/25428229" },
+  { title: '"입주민끼리 결혼" 그 강남 아파트 발칵…이번엔 뭔일', href: "https://www.joongang.co.kr/article/25429235" },
 ];
 
 const issues = [
-  { tag: "3대 특검", title: "김건희 \"쥴리 의혹 충격에 6년째 정신병…'쥴' 자도 사용한 적 없다\"", img: "https://mimgnews.pstatic.net/image/origin/025/2026/05/20/3524624.jpg?type=nfs284_284" },
-  { tag: "6·3 지방선거", title: '"우상호 돼야 기업유치" "지역 일꾼은 김진태"…강원민심 팽팽', img: "https://mimgnews.pstatic.net/image/origin/025/2026/05/20/3524491.jpg?type=nfs284_284" },
-  { tag: "美·이란 전쟁", title: "美, 이란 공습 재개 보류 속 금융망·선박 대규모 제재", img: "https://mimgnews.pstatic.net/image/origin/025/2026/05/20/3524479.jpg?type=nfs284_284" },
-  { tag: "쿠팡 개인정보 유출", title: "법원, 쿠팡 김범석 동일인 지정 제동…공정위 결정 효력 정지", img: "https://mimgnews.pstatic.net/image/origin/025/2026/05/15/3523617.jpg?type=nfs284_284" },
-  { tag: "트럼프발 관세전쟁", title: "美항소법원, '10% 글로벌 관세' 무효 판결 효력 '일시 정지'", img: "https://mimgnews.pstatic.net/image/origin/025/2026/05/13/3522855.jpg?type=nfs284_284" },
+  { tag: "3대 특검", title: "김건희 \"쥴리 의혹 충격에 6년째 정신병…'쥴' 자도 사용한 적 없다\"", img: "https://mimgnews.pstatic.net/image/origin/025/2026/05/20/3524624.jpg?type=nfs284_284", href: "https://media.naver.com/issue/025/1721" },
+  { tag: "6·3 지방선거", title: '"우상호 돼야 기업유치" "지역 일꾼은 김진태"…강원민심 팽팽', img: "https://mimgnews.pstatic.net/image/origin/025/2026/05/20/3524491.jpg?type=nfs284_284", href: "https://media.naver.com/issue/025/2671" },
+  { tag: "美·이란 전쟁", title: "美, 이란 공습 재개 보류 속 금융망·선박 대규모 제재", img: "https://mimgnews.pstatic.net/image/origin/025/2026/05/20/3524479.jpg?type=nfs284_284", href: "https://media.naver.com/issue/025/2674" },
+  { tag: "쿠팡 개인정보 유출", title: "법원, 쿠팡 김범석 동일인 지정 제동…공정위 결정 효력 정지", img: "https://mimgnews.pstatic.net/image/origin/025/2026/05/15/3523617.jpg?type=nfs284_284", href: "https://media.naver.com/issue/025/2176" },
+  { tag: "트럼프발 관세전쟁", title: "美항소법원, '10% 글로벌 관세' 무효 판결 효력 '일시 정지'", img: "https://mimgnews.pstatic.net/image/origin/025/2026/05/13/3522855.jpg?type=nfs284_284", href: "https://media.naver.com/issue/025/1182" },
 ];
 
 const reactionDefs = [
@@ -136,17 +154,27 @@ export default function NaverNewsPage() {
       {/* Header */}
       <header style={{ borderBottom: "1px solid #e5e5e5", backgroundColor: "#fff", position: "sticky", top: 0, zIndex: 100 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 20px", maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <a href="https://news.naver.com/" target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
             <div style={{ width: 24, height: 24, backgroundColor: "#03c75a", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ color: "#fff", fontWeight: 900, fontSize: 15, fontFamily: "Arial, sans-serif" }}>N</span>
             </div>
             <span style={{ fontSize: 22, fontWeight: 700, color: "#1a1a1a" }}>뉴스</span>
-          </div>
-          <span style={{ fontSize: 16, fontWeight: 700, color: "#1a1a1a" }}>중앙일보</span>
-          <button style={{ fontSize: 13, color: "#1a1a1a", border: "1px solid #ccc", borderRadius: 3, padding: "4px 10px", backgroundColor: "#fff", cursor: "pointer" }}>
+          </a>
+          <a href="https://media.naver.com/press/025" target="_blank" rel="noopener noreferrer" style={{ fontSize: 16, fontWeight: 700, color: "#1a1a1a", textDecoration: "none" }}>중앙일보</a>
+          <a href="https://media.naver.com/press/025" target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: "#1a1a1a", border: "1px solid #ccc", borderRadius: 3, padding: "4px 10px", backgroundColor: "#fff", textDecoration: "none" }}>
             +구독
-          </button>
+          </a>
         </div>
+        <nav style={{ borderTop: "1px solid #e5e5e5" }}>
+          <div style={{ display: "flex", justifyContent: "center", overflowX: "auto", whiteSpace: "nowrap", padding: "0 20px" }}>
+            {navTabs.map(({ label, href }) => (
+              <a key={label} href={href} target="_blank" rel="noopener noreferrer"
+                style={{ display: "inline-block", padding: "10px 14px", fontSize: 14, color: label === "경제" ? "#1a1a1a" : "#595959", fontWeight: label === "경제" ? 700 : 400, borderBottom: label === "경제" ? "2px solid #1a1a1a" : "2px solid transparent", textDecoration: "none", flexShrink: 0 }}>
+                {label}
+              </a>
+            ))}
+          </div>
+        </nav>
       </header>
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px", display: "flex", gap: 30, alignItems: "flex-start" }}>
@@ -178,7 +206,7 @@ export default function NaverNewsPage() {
                 <span style={{ fontSize: 13, color: "#595959" }}><em>입력</em> 2026.05.20. 오전 11:52</span>
                 <span style={{ color: "#ccc" }}>·</span>
                 <span style={{ fontSize: 13, color: "#595959" }}><em>수정</em> 2026.05.20. 오후 4:40</span>
-                <a href="#" style={{ fontSize: 12, color: "#1a1a1a", border: "1px solid #ccc", borderRadius: 2, padding: "1px 6px", marginLeft: 4 }} onClick={(e) => e.preventDefault()}>기사원문</a>
+                <a href="https://www.joongang.co.kr/article/25429880" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "#1a1a1a", border: "1px solid #ccc", borderRadius: 2, padding: "1px 6px", marginLeft: 4 }}>기사원문</a>
               </div>
 
               {/* Reactions + actions row */}
@@ -206,7 +234,7 @@ export default function NaverNewsPage() {
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                     {viewCount.toLocaleString("ko-KR")}
                   </span>
-                  <a href="#comments" style={{ fontSize: 13, color: "#595959", display: "flex", alignItems: "center", gap: 4 }} onClick={(e) => e.preventDefault()}>
+                  <a href="#comments" style={{ fontSize: 13, color: "#595959", display: "flex", alignItems: "center", gap: 4 }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
                     {comments.length > 0 ? comments.length.toLocaleString("ko-KR") : "1,494"}
                   </a>
@@ -251,16 +279,16 @@ export default function NaverNewsPage() {
                   <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>중앙일보 구독하고</div>
                   <div style={{ fontSize: 13, color: "#595959" }}>메인에서 바로 만나보세요!</div>
                 </div>
-                <button style={{ border: "1px solid #1a1a1a", borderRadius: 3, padding: "6px 16px", background: "#fff", fontSize: 13, cursor: "pointer", fontWeight: 600 }}>구독</button>
-                <a href="#" style={{ fontSize: 13, color: "#595959" }} onClick={(e) => e.preventDefault()}>언론사홈</a>
+                <a href="https://media.naver.com/press/025" target="_blank" rel="noopener noreferrer" style={{ border: "1px solid #1a1a1a", borderRadius: 3, padding: "6px 16px", background: "#fff", fontSize: 13, fontWeight: 600, textDecoration: "none", color: "#1a1a1a" }}>구독</a>
+                <a href="https://media.naver.com/press/025" target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: "#595959" }}>언론사홈</a>
               </div>
 
               {/* Related articles */}
               <div style={{ marginBottom: 30 }}>
                 <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>중앙일보 주요뉴스</div>
-                {relatedArticles.map((t, i) => (
-                  <a key={i} href="#" style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "10px 0", borderBottom: "1px solid #f0f0f0", color: "#1a1a1a", fontSize: 14, lineHeight: 1.5 }} onClick={(e) => e.preventDefault()}>
-                    <span style={{ color: "#999", minWidth: 16 }}>·</span><span style={{ flex: 1 }}>{t}</span>
+                {relatedArticles.map((item, i) => (
+                  <a key={i} href={item.href} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "10px 0", borderBottom: "1px solid #f0f0f0", color: "#1a1a1a", fontSize: 14, lineHeight: 1.5, textDecoration: "none" }}>
+                    <span style={{ color: "#999", minWidth: 16 }}>·</span><span style={{ flex: 1 }}>{item.title}</span>
                   </a>
                 ))}
               </div>
@@ -269,7 +297,7 @@ export default function NaverNewsPage() {
               <div style={{ marginBottom: 30 }}>
                 <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>중앙일보 언론사가 직접 선정한 이슈</div>
                 {issues.map((issue, i) => (
-                  <a key={i} href="#" style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "12px 0", borderBottom: "1px solid #f0f0f0", color: "#1a1a1a" }} onClick={(e) => e.preventDefault()}>
+                  <a key={i} href={issue.href} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "12px 0", borderBottom: "1px solid #f0f0f0", color: "#1a1a1a", textDecoration: "none" }}>
                     <img src={issue.img} alt={issue.title} style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 2, flexShrink: 0 }} onError={(e) => { e.currentTarget.style.backgroundColor = "#f0f0f0"; }} />
                     <div>
                       <div style={{ fontSize: 12, color: "#595959", marginBottom: 4 }}>이슈 <strong style={{ color: "#1a1a1a" }}>{issue.tag}</strong></div>
@@ -400,7 +428,7 @@ export default function NaverNewsPage() {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
               {rankingNews.map((item, i) => (
-                <a key={i} href="#" onClick={(e) => e.preventDefault()} style={{ display: "block", position: "relative", borderBottom: i < 4 ? "1px solid #e5e5e5" : "none", borderRight: i % 2 === 0 ? "1px solid #e5e5e5" : "none" }}>
+                <a key={i} href={item.href} target="_blank" rel="noopener noreferrer" style={{ display: "block", position: "relative", borderBottom: i < 4 ? "1px solid #e5e5e5" : "none", borderRight: i % 2 === 0 ? "1px solid #e5e5e5" : "none" }}>
                   <img src={item.img} alt={item.title} style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover", display: "block" }} onError={(e) => { e.currentTarget.style.backgroundColor = "#f0f0f0"; (e.currentTarget as HTMLImageElement).style.height = "142px"; }} />
                   <div style={{ position: "absolute", top: 6, left: 6, backgroundColor: "rgba(0,0,0,0.7)", color: "#fff", fontWeight: 900, fontSize: 15, width: 24, height: 24, borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center" }}>{item.rank}</div>
                   {item.badge && <div style={{ position: "absolute", bottom: 32, right: 6, backgroundColor: "rgba(0,0,0,0.7)", color: "#fff", fontSize: 11, padding: "2px 5px", borderRadius: 2 }}>{item.badge}</div>}
@@ -410,7 +438,7 @@ export default function NaverNewsPage() {
                 </a>
               ))}
             </div>
-            <a href="#" onClick={(e) => e.preventDefault()} style={{ display: "block", textAlign: "center", padding: "10px", fontSize: 13, color: "#595959", borderTop: "1px solid #e5e5e5", backgroundColor: "#fafafa" }}>랭킹 뉴스 더보기</a>
+            <a href="https://news.naver.com/ranking/" target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", padding: "10px", fontSize: 13, color: "#595959", borderTop: "1px solid #e5e5e5", backgroundColor: "#fafafa", textDecoration: "none" }}>랭킹 뉴스 더보기</a>
           </div>
 
           <div style={{ border: "1px solid #e5e5e5", borderRadius: 4, marginBottom: 16, padding: 14, display: "flex", alignItems: "flex-start", gap: 12 }}>
@@ -422,12 +450,12 @@ export default function NaverNewsPage() {
             <div style={{ padding: "12px 14px", borderBottom: "1px solid #e5e5e5" }}><span style={{ fontWeight: 700, fontSize: 14 }}>다른 언론사 보기</span></div>
             <div style={{ padding: "8px 14px" }}>
               {otherSources.map((src, i) => (
-                <a key={i} href="#" onClick={(e) => e.preventDefault()} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: i < otherSources.length - 1 ? "1px solid #f5f5f5" : "none" }}>
+                <a key={i} href={src.href} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: i < otherSources.length - 1 ? "1px solid #f5f5f5" : "none", textDecoration: "none", color: "#1a1a1a" }}>
                   <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: src.color, flexShrink: 0 }} />
                   <span style={{ fontSize: 13 }}>{src.name}</span>
                 </a>
               ))}
-              <a href="#" onClick={(e) => e.preventDefault()} style={{ display: "block", fontSize: 13, color: "#595959", marginTop: 8, textAlign: "center" }}>구독 설정 &gt;</a>
+              <a href="https://news.naver.com/subscribe" target="_blank" rel="noopener noreferrer" style={{ display: "block", fontSize: 13, color: "#595959", marginTop: 8, textAlign: "center", textDecoration: "none" }}>구독 설정 &gt;</a>
             </div>
           </div>
         </aside>
@@ -436,8 +464,18 @@ export default function NaverNewsPage() {
       <footer style={{ backgroundColor: "#f9f9f9", borderTop: "1px solid #e5e5e5", marginTop: 40, padding: "30px 20px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", fontSize: 12, color: "#999", textAlign: "center", lineHeight: 2 }}>
           <div style={{ marginBottom: 10 }}>
-            {["회사소개", "인재채용", "투자정보", "광고", "제휴", "이용약관", "개인정보처리방침", "청소년보호정책", "고객센터"].map((t) => (
-              <a key={t} href="#" style={{ margin: "0 10px", color: "#595959" }} onClick={(e) => e.preventDefault()}>{t}</a>
+            {[
+              { label: "회사소개", href: "https://www.navercorp.com/" },
+              { label: "인재채용", href: "https://recruit.navercorp.com/" },
+              { label: "투자정보", href: "https://www.navercorp.com/ir/irCalendar/upcomingEvent" },
+              { label: "광고", href: "https://naver.com/" },
+              { label: "제휴", href: "https://naver.com/" },
+              { label: "이용약관", href: "https://www.naver.com/rules/service.html" },
+              { label: "개인정보처리방침", href: "https://www.naver.com/rules/privacy.html" },
+              { label: "청소년보호정책", href: "https://www.naver.com/rules/youth.html" },
+              { label: "고객센터", href: "https://help.naver.com/" },
+            ].map(({ label, href }) => (
+              <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{ margin: "0 10px", color: "#595959", textDecoration: "none" }}>{label}</a>
             ))}
           </div>
           <div>Copyright © NAVER Corp. All Rights Reserved.</div>
