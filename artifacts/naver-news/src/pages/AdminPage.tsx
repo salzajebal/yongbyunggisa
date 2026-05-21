@@ -472,8 +472,23 @@ export default function AdminPage() {
                 형식으로 입력하세요. 한 문단 전체가 이 형식일 때 이미지로 렌더링됩니다.
               </p>
               {editBody.map((para, i) => {
-                const imgMatch = para.trim().match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+                const trimmed = para.trim();
+                const linkedImg = trimmed.match(/^\[!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)$/);
+                const plainImg = !linkedImg ? trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/) : null;
+                const imgMatch = linkedImg ?? plainImg;
                 const isImage = !!imgMatch;
+                const imgCap = imgMatch ? imgMatch[1] : "";
+                const imgUrl = imgMatch ? imgMatch[2] : "";
+                const imgLink = linkedImg ? linkedImg[3] : "";
+                const buildImgMd = (cap: string, url: string, link: string) =>
+                  link.trim()
+                    ? `[![${cap}](${url})](${link.trim()})`
+                    : `![${cap}](${url})`;
+                const updateImgField = (cap: string, url: string, link: string) => {
+                  const next = [...editBody];
+                  next[i] = buildImgMd(cap, url, link);
+                  setEditBody(next);
+                };
                 return (
                   <div key={i} style={{ marginBottom: 12, padding: isImage ? 10 : 0, backgroundColor: isImage ? "#ecfdf5" : "transparent", borderRadius: isImage ? 6 : 0, border: isImage ? "1px solid #a7f3d0" : "none" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
@@ -507,18 +522,50 @@ export default function AdminPage() {
                         ✕
                       </button>
                     </div>
-                    <textarea
-                      value={para}
-                      onChange={(e) => {
-                        const next = [...editBody];
-                        next[i] = e.target.value;
-                        setEditBody(next);
-                      }}
-                      rows={isImage ? 2 : 3}
-                      style={{ ...inputStyle, resize: "vertical", fontFamily: isImage ? "monospace" : undefined, fontSize: isImage ? 12 : undefined }}
-                    />
-                    {isImage && imgMatch && (
-                      <img src={imgMatch[2]} alt={imgMatch[1]} style={{ marginTop: 8, maxWidth: "100%", maxHeight: 160, objectFit: "cover", borderRadius: 4, border: "1px solid #d1fae5" }} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                    {isImage ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        <div>
+                          <label style={{ fontSize: 11, color: "#065f46", fontWeight: 600 }}>캡션</label>
+                          <input
+                            value={imgCap}
+                            onChange={(e) => updateImgField(e.target.value, imgUrl, imgLink)}
+                            placeholder="이미지 설명 (선택)"
+                            style={{ ...inputStyle, fontSize: 13 }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: "#065f46", fontWeight: 600 }}>이미지 URL</label>
+                          <input
+                            value={imgUrl}
+                            onChange={(e) => updateImgField(imgCap, e.target.value, imgLink)}
+                            placeholder="https://..."
+                            style={{ ...inputStyle, fontSize: 12, fontFamily: "monospace" }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 11, color: "#065f46", fontWeight: 600 }}>🔗 클릭 시 이동할 URL (선택)</label>
+                          <input
+                            value={imgLink}
+                            onChange={(e) => updateImgField(imgCap, imgUrl, e.target.value)}
+                            placeholder="비워두면 링크 없는 일반 이미지"
+                            style={{ ...inputStyle, fontSize: 12, fontFamily: "monospace" }}
+                          />
+                        </div>
+                        {imgUrl && (
+                          <img src={imgUrl} alt={imgCap} style={{ marginTop: 4, maxWidth: "100%", maxHeight: 160, objectFit: "cover", borderRadius: 4, border: "1px solid #d1fae5" }} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                        )}
+                      </div>
+                    ) : (
+                      <textarea
+                        value={para}
+                        onChange={(e) => {
+                          const next = [...editBody];
+                          next[i] = e.target.value;
+                          setEditBody(next);
+                        }}
+                        rows={3}
+                        style={{ ...inputStyle, resize: "vertical" }}
+                      />
                     )}
                   </div>
                 );
