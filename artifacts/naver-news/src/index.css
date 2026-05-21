@@ -20,3 +20,73 @@
     color: inherit;
   }
 }
+
+/* Mobile optimizations (≤ 768px) */
+@media (max-width: 768px) {
+  .nv-header-top {
+    padding: 8px 14px !important;
+  }
+  .nv-header-center {
+    font-size: 14px !important;
+  }
+  .nv-nav-inner {
+    justify-content: flex-start !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nv-nav-inner > a {
+    padding: 10px 10px !important;
+    font-size: 13px !important;
+  }
+  .nv-layout {
+    flex-direction: column !important;
+    gap: 0 !important;
+    padding: 0 14px !important;
+  }
+  .nv-main {
+    width: 100% !important;
+    padding-top: 14px !important;
+  }
+  .nv-sidebar {
+    width: 100% !important;
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-top: 24px !important;
+  }
+  .nv-title {
+    font-size: 20px !important;
+    line-height: 1.35 !important;
+  }
+  .nv-body {
+    font-size: 16px !important;
+    line-height: 1.7 !important;
+  }
+  .nv-meta-row {
+    font-size: 12px !important;
+  }
+  .nv-actions {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+  .nv-publisher {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    padding: 14px !important;
+  }
+  .nv-comment-stats {
+    padding: 12px !important;
+  }
+  .nv-comment-stats-row {
+    gap: 14px !important;
+    flex-wrap: wrap !important;
+  }
+  .nv-issue-img {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  .nv-footer-links a {
+    display: inline-block !important;
+    margin: 0 6px !important;
+    font-size: 11px !important;
+  }
+}

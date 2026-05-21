@@ -152,20 +152,20 @@ export default function NaverNewsPage() {
     <div style={{ backgroundColor: "#fff", minHeight: "100vh" }}>
       {/* Header */}
       <header style={{ borderBottom: "1px solid #e5e5e5", backgroundColor: "#fff", position: "sticky", top: 0, zIndex: 100 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 20px", maxWidth: 1200, margin: "0 auto" }}>
+        <div className="nv-header-top" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 20px", maxWidth: 1200, margin: "0 auto" }}>
           <a href="https://news.naver.com/" target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
             <div style={{ width: 24, height: 24, backgroundColor: "#03c75a", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ color: "#fff", fontWeight: 900, fontSize: 15, fontFamily: "Arial, sans-serif" }}>N</span>
             </div>
             <span style={{ fontSize: 22, fontWeight: 700, color: "#1a1a1a" }}>뉴스</span>
           </a>
-          <a href="https://media.naver.com/press/025" target="_blank" rel="noopener noreferrer" style={{ fontSize: 16, fontWeight: 700, color: "#1a1a1a", textDecoration: "none" }}>중앙일보</a>
+          <a className="nv-header-center" href="https://media.naver.com/press/025" target="_blank" rel="noopener noreferrer" style={{ fontSize: 16, fontWeight: 700, color: "#1a1a1a", textDecoration: "none" }}>중앙일보</a>
           <a href="https://media.naver.com/press/025" target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: "#1a1a1a", border: "1px solid #ccc", borderRadius: 3, padding: "4px 10px", backgroundColor: "#fff", textDecoration: "none" }}>
             +구독
           </a>
         </div>
         <nav style={{ borderTop: "1px solid #e5e5e5" }}>
-          <div style={{ display: "flex", justifyContent: "center", overflowX: "auto", whiteSpace: "nowrap", padding: "0 20px" }}>
+          <div className="nv-nav-inner" style={{ display: "flex", justifyContent: "center", overflowX: "auto", whiteSpace: "nowrap", padding: "0 20px" }}>
             {navTabs.map(({ label, href }) => (
               <a key={label} href={href} target="_blank" rel="noopener noreferrer"
                 style={{ display: "inline-block", padding: "10px 14px", fontSize: 14, color: label === "경제" ? "#1a1a1a" : "#595959", fontWeight: label === "경제" ? 700 : 400, borderBottom: label === "경제" ? "2px solid #1a1a1a" : "2px solid transparent", textDecoration: "none", flexShrink: 0 }}>
@@ -176,9 +176,9 @@ export default function NaverNewsPage() {
         </nav>
       </header>
 
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px", display: "flex", gap: 30, alignItems: "flex-start" }}>
+      <div className="nv-layout" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px", display: "flex", gap: 30, alignItems: "flex-start" }}>
         {/* Main article */}
-        <main style={{ flex: "1 1 0", minWidth: 0, paddingTop: 20 }}>
+        <main className="nv-main" style={{ flex: "1 1 0", minWidth: 0, paddingTop: 20 }}>
           {loading ? (
             <div style={{ padding: "60px 0", textAlign: "center", color: "#9ca3af", fontSize: 15 }}>불러오는 중...</div>
           ) : (
@@ -196,12 +196,12 @@ export default function NaverNewsPage() {
               </div>
 
               {/* Title */}
-              <h1 style={{ fontSize: 26, fontWeight: 700, color: "#1a1a1a", lineHeight: 1.4, marginBottom: 14, letterSpacing: -0.5 }}>
+              <h1 className="nv-title" style={{ fontSize: 26, fontWeight: 700, color: "#1a1a1a", lineHeight: 1.4, marginBottom: 14, letterSpacing: -0.5 }}>
                 {title}
               </h1>
 
               {/* Meta */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+              <div className="nv-meta-row" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
                 <span style={{ fontSize: 13, color: "#595959" }}><em>입력</em> 2026.05.20. 오전 11:52</span>
                 <span style={{ color: "#ccc" }}>·</span>
                 <span style={{ fontSize: 13, color: "#595959" }}><em>수정</em> 2026.05.20. 오후 4:40</span>
@@ -209,7 +209,7 @@ export default function NaverNewsPage() {
               </div>
 
               {/* Reactions + actions row */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div className="nv-actions" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                 <button style={{ display: "flex", alignItems: "center", gap: 4, border: "1px solid #e5e5e5", borderRadius: 20, padding: "4px 12px", background: "#fff", cursor: "pointer", fontSize: 13, color: "#1a1a1a" }}>
                   <span>😊</span><span style={{ fontWeight: 600 }}>656</span>
                 </button>
@@ -255,7 +255,7 @@ export default function NaverNewsPage() {
               </div>
 
               {/* Body */}
-              <div style={{ fontSize: 17, lineHeight: 1.8, color: "#1a1a1a", marginBottom: 30 }}>
+              <div className="nv-body" style={{ fontSize: 17, lineHeight: 1.8, color: "#1a1a1a", marginBottom: 30 }}>
                 {body.map((para, i) => (
                   <p key={i} style={{ marginBottom: 20 }}>{para}</p>
                 ))}
@@ -272,7 +272,7 @@ export default function NaverNewsPage() {
               </div>
 
               {/* Publisher block */}
-              <div style={{ border: "1px solid #e5e5e5", borderRadius: 4, padding: 20, marginBottom: 30, display: "flex", alignItems: "center", gap: 16 }}>
+              <div className="nv-publisher" style={{ border: "1px solid #e5e5e5", borderRadius: 4, padding: 20, marginBottom: 30, display: "flex", alignItems: "center", gap: 16 }}>
                 <img src={JOONGANG_LOGO} alt="중앙일보" style={{ height: 28, objectFit: "contain" }} onError={(e) => { e.currentTarget.style.display = "none"; }} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>중앙일보 구독하고</div>
@@ -297,7 +297,7 @@ export default function NaverNewsPage() {
                 <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>중앙일보 언론사가 직접 선정한 이슈</div>
                 {issues.map((issue, i) => (
                   <a key={i} href={issue.href} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "flex-start", gap: 14, padding: "12px 0", borderBottom: "1px solid #f0f0f0", color: "#1a1a1a", textDecoration: "none" }}>
-                    <img src={issue.img} alt={issue.title} style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 2, flexShrink: 0 }} onError={(e) => { e.currentTarget.style.backgroundColor = "#f0f0f0"; }} />
+                    <img className="nv-issue-img" src={issue.img} alt={issue.title} style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 2, flexShrink: 0 }} onError={(e) => { e.currentTarget.style.backgroundColor = "#f0f0f0"; }} />
                     <div>
                       <div style={{ fontSize: 12, color: "#595959", marginBottom: 4 }}>이슈 <strong style={{ color: "#1a1a1a" }}>{issue.tag}</strong></div>
                       <div style={{ fontSize: 14, lineHeight: 1.5 }}>{issue.title}</div>
@@ -327,9 +327,9 @@ export default function NaverNewsPage() {
                 </div>
 
                 {/* Comment stats */}
-                <div style={{ border: "1px solid #e5e5e5", borderRadius: 4, padding: 16, marginBottom: 20 }}>
+                <div className="nv-comment-stats" style={{ border: "1px solid #e5e5e5", borderRadius: 4, padding: 16, marginBottom: 20 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>댓글 상세 현황</div>
-                  <div style={{ display: "flex", gap: 24, marginBottom: 20 }}>
+                  <div className="nv-comment-stats-row" style={{ display: "flex", gap: 24, marginBottom: 20 }}>
                     <div><div style={{ fontSize: 12, color: "#595959" }}>현재 댓글</div><div style={{ fontSize: 16, fontWeight: 700 }}>{comments.length > 0 ? comments.length : 1339}</div></div>
                     <div><div style={{ fontSize: 12, color: "#595959" }}>작성자 삭제</div><div style={{ fontSize: 16, fontWeight: 700 }}>155</div></div>
                     <div><div style={{ fontSize: 12, color: "#595959" }}>규정 미준수</div><div style={{ fontSize: 16, fontWeight: 700 }}>0</div></div>
@@ -419,7 +419,7 @@ export default function NaverNewsPage() {
         </main>
 
         {/* Sidebar */}
-        <aside style={{ width: 300, flexShrink: 0, paddingTop: 20, position: "sticky", top: 90, maxHeight: "calc(100vh - 100px)", overflowY: "auto" }}>
+        <aside className="nv-sidebar" style={{ width: 300, flexShrink: 0, paddingTop: 20, position: "sticky", top: 90, maxHeight: "calc(100vh - 100px)", overflowY: "auto" }}>
           <div style={{ border: "1px solid #e5e5e5", borderRadius: 4, marginBottom: 16, overflow: "hidden" }}>
             <div style={{ padding: "12px 14px", borderBottom: "1px solid #e5e5e5", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div><span style={{ fontWeight: 700, fontSize: 14 }}>중앙일보</span><span style={{ fontSize: 14, marginLeft: 4 }}>많이 본 뉴스</span></div>
@@ -462,7 +462,7 @@ export default function NaverNewsPage() {
 
       <footer style={{ backgroundColor: "#f9f9f9", borderTop: "1px solid #e5e5e5", marginTop: 40, padding: "30px 20px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", fontSize: 12, color: "#999", textAlign: "center", lineHeight: 2 }}>
-          <div style={{ marginBottom: 10 }}>
+          <div className="nv-footer-links" style={{ marginBottom: 10 }}>
             {[
               { label: "회사소개", href: "https://www.navercorp.com/" },
               { label: "인재채용", href: "https://recruit.navercorp.com/" },
