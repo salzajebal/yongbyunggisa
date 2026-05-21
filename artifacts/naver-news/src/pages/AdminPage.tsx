@@ -9,6 +9,7 @@ interface Article {
   imageCaption: string;
   metaImage: string;
   viewCount: number;
+  updatedAt?: string;
 }
 
 interface Comment {
@@ -47,6 +48,45 @@ export default function AdminPage() {
   const [commentMsg, setCommentMsg] = useState("");
 
   const headers = { "Content-Type": "application/json", "x-admin-password": token };
+
+  const [uploading, setUploading] = useState<string>("");
+
+  async function uploadFile(file: File, slot: string): Promise<string | null> {
+    if (!file.type.startsWith("image/")) {
+      alert("이미지 파일만 업로드할 수 있습니다.");
+      return null;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      alert("20MB 이하 파일만 업로드할 수 있습니다.");
+      return null;
+    }
+    setUploading(slot);
+    try {
+      const reqRes = await fetch("/api/storage/uploads/request-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-password": token },
+        body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
+      });
+      if (!reqRes.ok) {
+        const errJson = await reqRes.json().catch(() => ({ error: `업로드 URL 요청 실패 (${reqRes.status})` }));
+        throw new Error(errJson.error || `업로드 URL 요청 실패 (${reqRes.status})`);
+      }
+      const { uploadURL, objectPath } = await reqRes.json();
+      const putRes = await fetch(uploadURL, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!putRes.ok) throw new Error(`업로드 실패 (${putRes.status})`);
+      return `/api/storage${objectPath}`;
+    } catch (err) {
+      console.error(err);
+      alert(`이미지 업로드 중 오류가 발생했습니다: ${err instanceof Error ? err.message : "알 수 없는 오류"}`);
+      return null;
+    } finally {
+      setUploading("");
+    }
+  }
 
   async function login() {
     const res = await fetch(`${API}/api/admin/login`, {
@@ -260,7 +300,16 @@ export default function AdminPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
                 <div>
                   <label style={labelStyle}>이미지 URL</label>
-                  <input value={editImageUrl} onChange={(e) => setEditImageUrl(e.target.value)} style={inputStyle} placeholder="https://..." />
+                  <input value={editImageUrl} onChange={(e) => setEditImageUrl(e.target.value)} style={inputStyle} placeholder="https://... 또는 파일 업로드" />
+                  <label style={{ display: "inline-block", marginTop: 6, padding: "6px 12px", backgroundColor: uploading === "hero" ? "#9ca3af" : "#10b981", color: "white", borderRadius: 6, cursor: uploading === "hero" ? "wait" : "pointer", fontSize: 12, fontWeight: 600 }}>
+                    {uploading === "hero" ? "업로드 중..." : "📁 파일 업로드"}
+                    <input type="file" accept="image/*" style={{ display: "none" }} disabled={uploading === "hero"} onChange={async (e) => {
+                      const f = e.target.files?.[0]; e.target.value = "";
+                      if (!f) return;
+                      const url = await uploadFile(f, "hero");
+                      if (url) setEditImageUrl(url);
+                    }} />
+                  </label>
                 </div>
                 <div>
                   <label style={labelStyle}>이미지 클릭 시 이동할 URL (링크)</label>
@@ -283,7 +332,16 @@ export default function AdminPage() {
               <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, color: "#1a1a1a" }}>메타 이미지 (OG Image)</h2>
               <p style={{ fontSize: 13, color: "#6b7280", marginBottom: 14 }}>카카오톡, 문자 등 링크 공유 시 나타나는 이미지입니다.</p>
               <label style={labelStyle}>메타 이미지 URL</label>
-              <input value={editMetaImage} onChange={(e) => setEditMetaImage(e.target.value)} style={inputStyle} placeholder="https://..." />
+              <input value={editMetaImage} onChange={(e) => setEditMetaImage(e.target.value)} style={inputStyle} placeholder="https://... 또는 파일 업로드" />
+              <label style={{ display: "inline-block", marginTop: 6, padding: "6px 12px", backgroundColor: uploading === "meta" ? "#9ca3af" : "#10b981", color: "white", borderRadius: 6, cursor: uploading === "meta" ? "wait" : "pointer", fontSize: 12, fontWeight: 600 }}>
+                {uploading === "meta" ? "업로드 중..." : "📁 파일 업로드"}
+                <input type="file" accept="image/*" style={{ display: "none" }} disabled={uploading === "meta"} onChange={async (e) => {
+                  const f = e.target.files?.[0]; e.target.value = "";
+                  if (!f) return;
+                  const url = await uploadFile(f, "meta");
+                  if (url) setEditMetaImage(url);
+                }} />
+              </label>
               {editMetaImage && (
                 <div style={{ marginTop: 12 }}>
                   <img src={editMetaImage} alt="meta preview" style={{ maxWidth: 300, maxHeight: 160, objectFit: "cover", borderRadius: 6, border: "1px solid #e5e7eb" }} />
@@ -308,14 +366,25 @@ export default function AdminPage() {
                       const caption = window.prompt("이미지 캡션 (선택, 비워두면 캡션 없음)", "") || "";
                       setEditBody([...editBody, `![${caption}](${url.trim()})`]);
                     }}
-                    style={{ ...btnStyle, backgroundColor: "#10b981", padding: "7px 14px", fontSize: 13 }}
+                    style={{ ...btnStyle, backgroundColor: "#6366f1", padding: "7px 14px", fontSize: 13 }}
                   >
-                    + 이미지 추가
+                    + URL로 이미지
                   </button>
+                  <label style={{ ...btnStyle, backgroundColor: uploading === "body" ? "#9ca3af" : "#10b981", padding: "7px 14px", fontSize: 13, cursor: uploading === "body" ? "wait" : "pointer", display: "inline-flex", alignItems: "center", margin: 0 }}>
+                    {uploading === "body" ? "업로드 중..." : "📁 파일로 이미지"}
+                    <input type="file" accept="image/*" style={{ display: "none" }} disabled={uploading === "body"} onChange={async (e) => {
+                      const f = e.target.files?.[0]; e.target.value = "";
+                      if (!f) return;
+                      const url = await uploadFile(f, "body");
+                      if (!url) return;
+                      const caption = window.prompt("이미지 캡션 (선택, 비워두면 캡션 없음)", "") || "";
+                      setEditBody([...editBody, `![${caption}](${url})`]);
+                    }} />
+                  </label>
                 </div>
               </div>
               <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16, lineHeight: 1.6, padding: "8px 12px", backgroundColor: "#f9fafb", borderRadius: 6, border: "1px solid #e5e7eb" }}>
-                💡 본문 중간에 이미지를 넣으려면 <strong>+ 이미지 추가</strong> 버튼을 누르거나, 문단에 직접{" "}
+                💡 본문 중간에 이미지를 넣으려면 <strong>+ 파일로 이미지</strong>(직접 업로드) 또는 <strong>+ URL로 이미지</strong> 버튼을 누르거나, 문단에 직접{" "}
                 <code style={{ backgroundColor: "#fff", padding: "1px 5px", borderRadius: 3, border: "1px solid #e5e7eb" }}>![캡션](이미지URL)</code>{" "}
                 형식으로 입력하세요. 한 문단 전체가 이 형식일 때 이미지로 렌더링됩니다. 문단 순서를 바꾸려면 ↑↓ 버튼을 사용하세요.
               </p>
