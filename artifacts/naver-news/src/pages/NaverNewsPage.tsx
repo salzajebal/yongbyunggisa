@@ -82,6 +82,8 @@ interface Article {
   imageLink: string;
   imageCaption: string;
   metaImage: string;
+  metaTitle?: string;
+  metaDescription?: string;
   viewCount: number;
   publishedAt?: string;
   updatedAt?: string;
@@ -146,15 +148,24 @@ export default function NaverNewsPage() {
           const art = await artRes.json() as Article;
           setArticle(art);
           // Update meta tags dynamically
-          if (art.metaImage) {
-            let ogImg = document.querySelector('meta[property="og:image"]');
-            if (!ogImg) {
-              ogImg = document.createElement("meta");
-              ogImg.setAttribute("property", "og:image");
-              document.head.appendChild(ogImg);
+          const setOg = (prop: string, content: string) => {
+            if (!content) return;
+            let el = document.querySelector(`meta[property="${prop}"]`);
+            if (!el) {
+              el = document.createElement("meta");
+              el.setAttribute("property", prop);
+              document.head.appendChild(el);
             }
-            ogImg.setAttribute("content", art.metaImage);
+            el.setAttribute("content", content);
+          };
+          const ogTitle = art.metaTitle || art.title;
+          const ogDesc = art.metaDescription || "";
+          if (ogTitle) {
+            document.title = `${ogTitle} : 네이버 뉴스`;
+            setOg("og:title", ogTitle);
           }
+          if (ogDesc) setOg("og:description", ogDesc);
+          if (art.metaImage) setOg("og:image", art.metaImage);
         }
         if (comRes.ok) setComments(await comRes.json() as Comment[]);
       } catch (_) {

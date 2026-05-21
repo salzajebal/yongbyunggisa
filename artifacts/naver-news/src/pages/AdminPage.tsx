@@ -8,6 +8,8 @@ interface Article {
   imageLink: string;
   imageCaption: string;
   metaImage: string;
+  metaTitle?: string;
+  metaDescription?: string;
   viewCount: number;
   publishedAt?: string;
   updatedAt?: string;
@@ -56,6 +58,8 @@ export default function AdminPage() {
   const [editImageLink, setEditImageLink] = useState("");
   const [editImageCaption, setEditImageCaption] = useState("");
   const [editMetaImage, setEditMetaImage] = useState("");
+  const [editMetaTitle, setEditMetaTitle] = useState("");
+  const [editMetaDescription, setEditMetaDescription] = useState("");
   const [editPublishedAt, setEditPublishedAt] = useState("");
   const [editUpdatedAt, setEditUpdatedAt] = useState("");
   const [origPublishedAt, setOrigPublishedAt] = useState("");
@@ -136,6 +140,8 @@ export default function AdminPage() {
       setEditImageLink(data.imageLink || "");
       setEditImageCaption(data.imageCaption || "");
       setEditMetaImage(data.metaImage || "");
+      setEditMetaTitle(data.metaTitle || "");
+      setEditMetaDescription(data.metaDescription || "");
       const pub = toLocalDT(data.publishedAt);
       const upd = toLocalDT(data.updatedAt);
       setEditPublishedAt(pub);
@@ -173,6 +179,8 @@ export default function AdminPage() {
         imageLink: editImageLink,
         imageCaption: editImageCaption,
         metaImage: editMetaImage,
+        metaTitle: editMetaTitle,
+        metaDescription: editMetaDescription,
         ...(editPublishedAt && editPublishedAt !== origPublishedAt
           ? { publishedAt: fromLocalDT(editPublishedAt) ?? undefined }
           : {}),
@@ -402,9 +410,16 @@ export default function AdminPage() {
             </div>
 
             <div style={sectionStyle}>
-              <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, color: "#1a1a1a" }}>메타 이미지 (OG Image)</h2>
-              <p style={{ fontSize: 13, color: "#6b7280", marginBottom: 14 }}>카카오톡, 문자 등 링크 공유 시 나타나는 이미지입니다.</p>
-              <label style={labelStyle}>메타 이미지 URL</label>
+              <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, color: "#1a1a1a" }}>공유 미리보기 (OG Tags)</h2>
+              <p style={{ fontSize: 13, color: "#6b7280", marginBottom: 14 }}>카카오톡, 문자, SNS 등 링크 공유 시 표시되는 이미지/제목/설명입니다. 비워두면 기사 제목·기본 설명이 사용됩니다.</p>
+
+              <label style={labelStyle}>공유 제목 (og:title)</label>
+              <input value={editMetaTitle} onChange={(e) => setEditMetaTitle(e.target.value)} style={inputStyle} placeholder="비워두면 기사 제목을 사용" />
+
+              <label style={{ ...labelStyle, marginTop: 12 }}>공유 설명 (og:description)</label>
+              <textarea value={editMetaDescription} onChange={(e) => setEditMetaDescription(e.target.value)} rows={3} style={{ ...inputStyle, resize: "vertical" }} placeholder="공유 시 제목 아래에 표시되는 짧은 설명" />
+
+              <label style={{ ...labelStyle, marginTop: 12 }}>공유 이미지 URL (og:image)</label>
               <input value={editMetaImage} onChange={(e) => setEditMetaImage(e.target.value)} style={inputStyle} placeholder="https://... 또는 파일 업로드" />
               <label style={{ display: "inline-block", marginTop: 6, padding: "6px 12px", backgroundColor: uploading === "meta" ? "#9ca3af" : "#10b981", color: "white", borderRadius: 6, cursor: uploading === "meta" ? "wait" : "pointer", fontSize: 12, fontWeight: 600 }}>
                 {uploading === "meta" ? "업로드 중..." : "📁 파일 업로드"}
@@ -415,9 +430,22 @@ export default function AdminPage() {
                   if (url) setEditMetaImage(url);
                 }} />
               </label>
-              {editMetaImage && (
-                <div style={{ marginTop: 12 }}>
-                  <img src={editMetaImage} alt="meta preview" style={{ maxWidth: 300, maxHeight: 160, objectFit: "cover", borderRadius: 6, border: "1px solid #e5e7eb" }} />
+              {(editMetaImage || editMetaTitle || editMetaDescription) && (
+                <div style={{ marginTop: 16, padding: 12, backgroundColor: "#f9fafb", borderRadius: 8, border: "1px solid #e5e7eb" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#6b7280", marginBottom: 8 }}>📱 공유 미리보기</div>
+                  <div style={{ display: "flex", gap: 12, alignItems: "stretch", backgroundColor: "#fff", borderRadius: 6, overflow: "hidden", border: "1px solid #e5e7eb", maxWidth: 460 }}>
+                    {editMetaImage && (
+                      <img src={editMetaImage} alt="meta preview" style={{ width: 140, height: 140, objectFit: "cover", flexShrink: 0 }} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                    )}
+                    <div style={{ padding: "10px 12px", flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a1a", lineHeight: 1.35, marginBottom: 6, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        {editMetaTitle || (editTitle || "(제목 없음)")}
+                      </div>
+                      <div style={{ fontSize: 12, color: "#595959", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        {editMetaDescription || "(설명을 입력하세요)"}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

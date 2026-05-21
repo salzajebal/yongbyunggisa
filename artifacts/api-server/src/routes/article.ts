@@ -85,6 +85,8 @@ router.put("/article", requireAdmin, async (req, res) => {
     if (parsed.data.imageLink !== undefined) updates.imageLink = parsed.data.imageLink;
     if (parsed.data.imageCaption !== undefined) updates.imageCaption = parsed.data.imageCaption;
     if (parsed.data.metaImage !== undefined) updates.metaImage = parsed.data.metaImage;
+    if (parsed.data.metaTitle !== undefined) updates.metaTitle = parsed.data.metaTitle;
+    if (parsed.data.metaDescription !== undefined) updates.metaDescription = parsed.data.metaDescription;
     if (parsed.data.body !== undefined) updates.body = JSON.stringify(parsed.data.body);
 
     if (parsed.data.publishedAt !== undefined) {
