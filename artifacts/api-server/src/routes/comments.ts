@@ -47,6 +47,44 @@ router.post("/comments", requireAdmin, async (req, res) => {
   }
 });
 
+router.patch("/comments/:id", requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
+    const body = (req.body ?? {}) as { username?: string; content?: string; likes?: number; dislikes?: number; createdAt?: string };
+    const updates: Record<string, unknown> = {};
+    if (typeof body.username === "string") updates.username = body.username;
+    if (typeof body.content === "string") updates.content = body.content;
+    if (typeof body.likes === "number") updates.likes = body.likes;
+    if (typeof body.dislikes === "number") updates.dislikes = body.dislikes;
+    if (typeof body.createdAt === "string") {
+      const d = new Date(body.createdAt);
+      if (isNaN(d.getTime())) { res.status(400).json({ error: "Invalid createdAt" }); return; }
+      updates.createdAt = d;
+    }
+    if (Object.keys(updates).length === 0) {
+      res.status(400).json({ error: "No fields to update" });
+      return;
+    }
+    const [updated] = await db
+      .update(commentsTable)
+      .set(updates)
+      .where(eq(commentsTable.id, id))
+      .returning();
+    if (!updated) {
+      res.status(404).json({ error: "Comment not found" });
+      return;
+    }
+    res.json(updated);
+  } catch (err) {
+    req.log.error({ err }, "Failed to update comment");
+    res.status(500).json({ error: "Failed to update comment" });
+  }
+});
+
 router.delete("/comments/:id", requireAdmin, async (req, res) => {
   try {
     const id = Number(req.params.id);

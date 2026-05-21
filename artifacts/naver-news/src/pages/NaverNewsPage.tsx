@@ -83,6 +83,31 @@ interface Article {
   imageCaption: string;
   metaImage: string;
   viewCount: number;
+  publishedAt?: string;
+  updatedAt?: string;
+}
+
+const KST_DATE_FMT = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Seoul",
+  year: "numeric", month: "2-digit", day: "2-digit",
+});
+const KST_TIME_FMT = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Asia/Seoul",
+  hour: "numeric", minute: "2-digit", hour12: true,
+});
+
+function formatNaverDate(value: string | undefined): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return "";
+  const dateParts = Object.fromEntries(
+    KST_DATE_FMT.formatToParts(d).map((p) => [p.type, p.value])
+  );
+  const timeParts = Object.fromEntries(
+    KST_TIME_FMT.formatToParts(d).map((p) => [p.type, p.value])
+  );
+  const period = timeParts.dayPeriod === "AM" ? "오전" : "오후";
+  return `${dateParts.year}.${dateParts.month}.${dateParts.day}. ${period} ${timeParts.hour}:${timeParts.minute}`;
 }
 
 interface Comment {
@@ -202,9 +227,13 @@ export default function NaverNewsPage() {
 
               {/* Meta */}
               <div className="nv-meta-row" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 13, color: "#595959" }}><em>입력</em> 2026.05.20. 오전 11:52</span>
-                <span style={{ color: "#ccc" }}>·</span>
-                <span style={{ fontSize: 13, color: "#595959" }}><em>수정</em> 2026.05.20. 오후 4:40</span>
+                <span style={{ fontSize: 13, color: "#595959" }}><em>입력</em> {formatNaverDate(article?.publishedAt) || "2026.05.20. 오전 11:52"}</span>
+                {article?.updatedAt && (
+                  <>
+                    <span style={{ color: "#ccc" }}>·</span>
+                    <span style={{ fontSize: 13, color: "#595959" }}><em>수정</em> {formatNaverDate(article.updatedAt)}</span>
+                  </>
+                )}
                 <a href="https://www.joongang.co.kr/article/25429880" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "#1a1a1a", border: "1px solid #ccc", borderRadius: 2, padding: "1px 6px", marginLeft: 4 }}>기사원문</a>
               </div>
 

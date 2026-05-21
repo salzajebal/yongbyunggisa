@@ -78,7 +78,7 @@ router.put("/article", requireAdmin, async (req, res) => {
     }
 
     const article = await getOrCreateArticle();
-    const updates: Record<string, unknown> = { updatedAt: new Date() };
+    const updates: Record<string, unknown> = {};
 
     if (parsed.data.title !== undefined) updates.title = parsed.data.title;
     if (parsed.data.imageUrl !== undefined) updates.imageUrl = parsed.data.imageUrl;
@@ -86,6 +86,19 @@ router.put("/article", requireAdmin, async (req, res) => {
     if (parsed.data.imageCaption !== undefined) updates.imageCaption = parsed.data.imageCaption;
     if (parsed.data.metaImage !== undefined) updates.metaImage = parsed.data.metaImage;
     if (parsed.data.body !== undefined) updates.body = JSON.stringify(parsed.data.body);
+
+    if (parsed.data.publishedAt !== undefined) {
+      const d = new Date(parsed.data.publishedAt);
+      if (isNaN(d.getTime())) { res.status(400).json({ error: "Invalid publishedAt" }); return; }
+      updates.publishedAt = d;
+    }
+    if (parsed.data.updatedAt !== undefined) {
+      const d = new Date(parsed.data.updatedAt);
+      if (isNaN(d.getTime())) { res.status(400).json({ error: "Invalid updatedAt" }); return; }
+      updates.updatedAt = d;
+    } else {
+      updates.updatedAt = new Date();
+    }
 
     const [updated] = await db
       .update(articleTable)

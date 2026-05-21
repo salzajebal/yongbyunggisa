@@ -10,6 +10,7 @@ export const articleTable = pgTable("article", {
   imageCaption: text("image_caption").default(""),
   metaImage: text("meta_image").default(""),
   viewCount: integer("view_count").notNull().default(0),
+  publishedAt: timestamp("published_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
@@ -20,6 +21,8 @@ export const updateArticleSchema = z.object({
   imageLink: z.string().optional(),
   imageCaption: z.string().optional(),
   metaImage: z.string().optional(),
+  publishedAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 });
 
 export type Article = typeof articleTable.$inferSelect;

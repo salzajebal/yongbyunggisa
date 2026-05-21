@@ -9,7 +9,23 @@ interface Article {
   imageCaption: string;
   metaImage: string;
   viewCount: number;
+  publishedAt?: string;
   updatedAt?: string;
+}
+
+function toLocalDT(value: string | Date | null | undefined): string {
+  if (!value) return "";
+  const d = typeof value === "string" ? new Date(value) : value;
+  if (isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function fromLocalDT(s: string): string | null {
+  if (!s) return null;
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return null;
+  return d.toISOString();
 }
 
 interface Comment {
@@ -40,6 +56,11 @@ export default function AdminPage() {
   const [editImageLink, setEditImageLink] = useState("");
   const [editImageCaption, setEditImageCaption] = useState("");
   const [editMetaImage, setEditMetaImage] = useState("");
+  const [editPublishedAt, setEditPublishedAt] = useState("");
+  const [editUpdatedAt, setEditUpdatedAt] = useState("");
+  const [origPublishedAt, setOrigPublishedAt] = useState("");
+  const [origUpdatedAt, setOrigUpdatedAt] = useState("");
+  const [commentDateEdits, setCommentDateEdits] = useState<Record<number, string>>({});
 
   const [newCommentUser, setNewCommentUser] = useState("");
   const [newCommentContent, setNewCommentContent] = useState("");
@@ -115,12 +136,21 @@ export default function AdminPage() {
       setEditImageLink(data.imageLink || "");
       setEditImageCaption(data.imageCaption || "");
       setEditMetaImage(data.metaImage || "");
+      const pub = toLocalDT(data.publishedAt);
+      const upd = toLocalDT(data.updatedAt);
+      setEditPublishedAt(pub);
+      setEditUpdatedAt(upd);
+      setOrigPublishedAt(pub);
+      setOrigUpdatedAt(upd);
     }
   }
 
   async function loadComments() {
     const res = await fetch(`${API}/api/comments`);
-    if (res.ok) setComments(await res.json() as Comment[]);
+    if (res.ok) {
+      setComments(await res.json() as Comment[]);
+      setCommentDateEdits({});
+    }
   }
 
   useEffect(() => {
@@ -143,6 +173,12 @@ export default function AdminPage() {
         imageLink: editImageLink,
         imageCaption: editImageCaption,
         metaImage: editMetaImage,
+        ...(editPublishedAt && editPublishedAt !== origPublishedAt
+          ? { publishedAt: fromLocalDT(editPublishedAt) ?? undefined }
+          : {}),
+        ...(editUpdatedAt !== origUpdatedAt
+          ? { updatedAt: fromLocalDT(editUpdatedAt) ?? undefined }
+          : {}),
       }),
     });
     setSaving(false);
@@ -187,6 +223,26 @@ export default function AdminPage() {
     if (!confirm("댓글을 삭제하시겠습니까?")) return;
     await fetch(`${API}/api/comments/${id}`, { method: "DELETE", headers });
     await loadComments();
+  }
+
+  async function updateCommentDate(id: number, localDT: string) {
+    const iso = fromLocalDT(localDT);
+    if (!iso) {
+      alert("올바른 날짜/시간을 입력하세요.");
+      setCommentDateEdits((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      return;
+    }
+    const res = await fetch(`${API}/api/comments/${id}`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ createdAt: iso }),
+    });
+    if (res.ok) {
+      await loadComments();
+    } else {
+      alert("댓글 시간 변경 실패");
+      setCommentDateEdits((prev) => { const n = { ...prev }; delete n[id]; return n; });
+    }
   }
 
   async function resetViews() {
@@ -293,6 +349,23 @@ export default function AdminPage() {
               <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#1a1a1a" }}>기사 제목</h2>
               <label style={labelStyle}>제목</label>
               <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} style={inputStyle} />
+            </div>
+
+            <div style={sectionStyle}>
+              <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4, color: "#1a1a1a" }}>기사 날짜/시간</h2>
+              <p style={{ fontSize: 13, color: "#6b7280", marginBottom: 14 }}>기사 상단에 노출되는 입력/수정 시각입니다. 초 단위까지 변경 가능합니다.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div>
+                  <label style={labelStyle}>입력 (게시) 일시</label>
+                  <input type="datetime-local" step={1} value={editPublishedAt} onChange={(e) => setEditPublishedAt(e.target.value)} style={inputStyle} />
+                  <button onClick={() => setEditPublishedAt(toLocalDT(new Date()))} style={{ marginTop: 6, background: "none", border: "1px solid #d1d5db", borderRadius: 5, padding: "4px 10px", fontSize: 12, cursor: "pointer", color: "#374151" }}>지금으로 설정</button>
+                </div>
+                <div>
+                  <label style={labelStyle}>수정 일시</label>
+                  <input type="datetime-local" step={1} value={editUpdatedAt} onChange={(e) => setEditUpdatedAt(e.target.value)} style={inputStyle} />
+                  <button onClick={() => setEditUpdatedAt(toLocalDT(new Date()))} style={{ marginTop: 6, background: "none", border: "1px solid #d1d5db", borderRadius: 5, padding: "4px 10px", fontSize: 12, cursor: "pointer", color: "#374151" }}>지금으로 설정</button>
+                </div>
+              </div>
             </div>
 
             <div style={sectionStyle}>
@@ -494,12 +567,33 @@ export default function AdminPage() {
                   {comments.map((c) => (
                     <div key={c.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 0", borderBottom: "1px solid #f3f4f6" }}>
                       <div style={{ flex: 1 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4, flexWrap: "wrap" }}>
                           <span style={{ fontWeight: 700, fontSize: 13, color: "#1a1a1a" }}>{c.username}</span>
-                          <span style={{ fontSize: 12, color: "#9ca3af" }}>{new Date(c.createdAt).toLocaleString("ko-KR")}</span>
                           <span style={{ fontSize: 12, color: "#6b7280" }}>👍 {c.likes} · 👎 {c.dislikes}</span>
                         </div>
-                        <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.5 }}>{c.content}</p>
+                        <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.5, marginBottom: 8 }}>{c.content}</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                          <label style={{ fontSize: 11, color: "#6b7280", fontWeight: 600 }}>작성 시각:</label>
+                          <input
+                            type="datetime-local"
+                            step={1}
+                            value={commentDateEdits[c.id] ?? toLocalDT(c.createdAt)}
+                            onChange={(e) => setCommentDateEdits((prev) => ({ ...prev, [c.id]: e.target.value }))}
+                            style={{ border: "1px solid #d1d5db", borderRadius: 5, padding: "3px 8px", fontSize: 12, fontFamily: "inherit" }}
+                          />
+                          {commentDateEdits[c.id] !== undefined && commentDateEdits[c.id] !== toLocalDT(c.createdAt) && (
+                            <>
+                              <button
+                                onClick={() => updateCommentDate(c.id, commentDateEdits[c.id])}
+                                style={{ background: "#03c75a", color: "#fff", border: "none", borderRadius: 5, padding: "3px 10px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                              >저장</button>
+                              <button
+                                onClick={() => setCommentDateEdits((prev) => { const n = { ...prev }; delete n[c.id]; return n; })}
+                                style={{ background: "none", border: "1px solid #d1d5db", borderRadius: 5, padding: "3px 10px", fontSize: 12, cursor: "pointer", color: "#374151" }}
+                              >취소</button>
+                            </>
+                          )}
+                        </div>
                       </div>
                       <button onClick={() => deleteComment(c.id)} style={{ ...dangerBtn, padding: "5px 12px", fontSize: 12, flexShrink: 0 }}>
                         삭제
