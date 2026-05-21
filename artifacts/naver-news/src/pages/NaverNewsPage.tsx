@@ -234,7 +234,6 @@ export default function NaverNewsPage() {
                     <span style={{ fontSize: 13, color: "#595959" }}><em>수정</em> {formatNaverDate(article.updatedAt)}</span>
                   </>
                 )}
-                <a href="https://www.joongang.co.kr/article/25429880" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "#1a1a1a", border: "1px solid #ccc", borderRadius: 2, padding: "1px 6px", marginLeft: 4 }}>기사원문</a>
               </div>
 
               {/* Reactions + actions row */}
