@@ -256,9 +256,20 @@ export default function NaverNewsPage() {
 
               {/* Body */}
               <div className="nv-body" style={{ fontSize: 17, lineHeight: 1.8, color: "#1a1a1a", marginBottom: 30 }}>
-                {body.map((para, i) => (
-                  <p key={i} style={{ marginBottom: 20 }}>{para}</p>
-                ))}
+                {body.map((para, i) => {
+                  const trimmed = para.trim();
+                  const imgMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+                  if (imgMatch) {
+                    const [, alt, url] = imgMatch;
+                    return (
+                      <figure key={i} style={{ margin: "0 0 20px" }}>
+                        <img src={url} alt={alt || "본문 이미지"} style={{ width: "100%", display: "block", borderRadius: 2 }} onError={(e) => { e.currentTarget.style.backgroundColor = "#f0f0f0"; e.currentTarget.style.minHeight = "200px"; }} />
+                        {alt && <figcaption style={{ fontSize: 13, color: "#595959", marginTop: 8, lineHeight: 1.5 }}>{alt}</figcaption>}
+                      </figure>
+                    );
+                  }
+                  return <p key={i} style={{ marginBottom: 20 }}>{para}</p>;
+                })}
               </div>
 
               {/* Copyright */}

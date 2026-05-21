@@ -292,38 +292,85 @@ export default function AdminPage() {
             </div>
 
             <div style={sectionStyle}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                 <h2 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a1a" }}>본문 문단</h2>
-                <button
-                  onClick={() => setEditBody([...editBody, ""])}
-                  style={{ ...btnStyle, backgroundColor: "#3b82f6", padding: "7px 14px", fontSize: 13 }}
-                >
-                  + 문단 추가
-                </button>
-              </div>
-              {editBody.map((para, i) => (
-                <div key={i} style={{ marginBottom: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    <label style={{ ...labelStyle, marginBottom: 0, flex: 1 }}>문단 {i + 1}</label>
-                    <button
-                      onClick={() => setEditBody(editBody.filter((_, j) => j !== i))}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: 18, lineHeight: 1 }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  <textarea
-                    value={para}
-                    onChange={(e) => {
-                      const next = [...editBody];
-                      next[i] = e.target.value;
-                      setEditBody(next);
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button
+                    onClick={() => setEditBody([...editBody, ""])}
+                    style={{ ...btnStyle, backgroundColor: "#3b82f6", padding: "7px 14px", fontSize: 13 }}
+                  >
+                    + 문단 추가
+                  </button>
+                  <button
+                    onClick={() => {
+                      const url = window.prompt("삽입할 이미지 URL을 입력하세요 (https://...)");
+                      if (!url) return;
+                      const caption = window.prompt("이미지 캡션 (선택, 비워두면 캡션 없음)", "") || "";
+                      setEditBody([...editBody, `![${caption}](${url.trim()})`]);
                     }}
-                    rows={3}
-                    style={{ ...inputStyle, resize: "vertical" }}
-                  />
+                    style={{ ...btnStyle, backgroundColor: "#10b981", padding: "7px 14px", fontSize: 13 }}
+                  >
+                    + 이미지 추가
+                  </button>
                 </div>
-              ))}
+              </div>
+              <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 16, lineHeight: 1.6, padding: "8px 12px", backgroundColor: "#f9fafb", borderRadius: 6, border: "1px solid #e5e7eb" }}>
+                💡 본문 중간에 이미지를 넣으려면 <strong>+ 이미지 추가</strong> 버튼을 누르거나, 문단에 직접{" "}
+                <code style={{ backgroundColor: "#fff", padding: "1px 5px", borderRadius: 3, border: "1px solid #e5e7eb" }}>![캡션](이미지URL)</code>{" "}
+                형식으로 입력하세요. 한 문단 전체가 이 형식일 때 이미지로 렌더링됩니다. 문단 순서를 바꾸려면 ↑↓ 버튼을 사용하세요.
+              </p>
+              {editBody.map((para, i) => {
+                const imgMatch = para.trim().match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+                const isImage = !!imgMatch;
+                return (
+                  <div key={i} style={{ marginBottom: 12, padding: isImage ? 10 : 0, backgroundColor: isImage ? "#ecfdf5" : "transparent", borderRadius: isImage ? 6 : 0, border: isImage ? "1px solid #a7f3d0" : "none" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <label style={{ ...labelStyle, marginBottom: 0, flex: 1 }}>
+                        {isImage ? `🖼️ 이미지 ${i + 1}` : `문단 ${i + 1}`}
+                      </label>
+                      <button
+                        onClick={() => {
+                          if (i === 0) return;
+                          const next = [...editBody];
+                          [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                          setEditBody(next);
+                        }}
+                        disabled={i === 0}
+                        style={{ background: "none", border: "1px solid #d1d5db", borderRadius: 4, padding: "2px 8px", cursor: i === 0 ? "not-allowed" : "pointer", color: i === 0 ? "#d1d5db" : "#374151", fontSize: 12 }}
+                      >↑</button>
+                      <button
+                        onClick={() => {
+                          if (i === editBody.length - 1) return;
+                          const next = [...editBody];
+                          [next[i + 1], next[i]] = [next[i], next[i + 1]];
+                          setEditBody(next);
+                        }}
+                        disabled={i === editBody.length - 1}
+                        style={{ background: "none", border: "1px solid #d1d5db", borderRadius: 4, padding: "2px 8px", cursor: i === editBody.length - 1 ? "not-allowed" : "pointer", color: i === editBody.length - 1 ? "#d1d5db" : "#374151", fontSize: 12 }}
+                      >↓</button>
+                      <button
+                        onClick={() => setEditBody(editBody.filter((_, j) => j !== i))}
+                        style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: 18, lineHeight: 1 }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <textarea
+                      value={para}
+                      onChange={(e) => {
+                        const next = [...editBody];
+                        next[i] = e.target.value;
+                        setEditBody(next);
+                      }}
+                      rows={isImage ? 2 : 3}
+                      style={{ ...inputStyle, resize: "vertical", fontFamily: isImage ? "monospace" : undefined, fontSize: isImage ? 12 : undefined }}
+                    />
+                    {isImage && imgMatch && (
+                      <img src={imgMatch[2]} alt={imgMatch[1]} style={{ marginTop: 8, maxWidth: "100%", maxHeight: 160, objectFit: "cover", borderRadius: 4, border: "1px solid #d1fae5" }} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
