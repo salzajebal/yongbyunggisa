@@ -130,7 +130,7 @@ export default function NaverNewsPage() {
             }
             ogImg.setAttribute("content", art.metaImage);
           }
-          document.title = art.title;
+          document.title = `${art.title} : 네이버 뉴스`;
         }
         if (comRes.ok) setComments(await comRes.json() as Comment[]);
       } catch (_) {
