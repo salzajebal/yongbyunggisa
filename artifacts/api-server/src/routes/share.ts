@@ -54,9 +54,7 @@ ${image ? `<meta property="og:image" content="${escapeHtml(image)}" />` : ""}
 <meta name="twitter:title" content="${escapeHtml(title)}" />
 <meta name="twitter:description" content="${escapeHtml(description)}" />
 ${image ? `<meta name="twitter:image" content="${escapeHtml(image)}" />` : ""}
-<link rel="canonical" href="${escapeHtml(articleUrl)}" />
-<meta http-equiv="refresh" content="0; url=${escapeHtml(articleUrl)}" />
-<script>window.location.replace(${JSON.stringify(articleUrl)});</script>
+<script>setTimeout(function(){window.location.replace(${JSON.stringify(articleUrl)});}, 50);</script>
 </head>
 <body style="font-family:sans-serif;text-align:center;padding:40px;color:#333">
 <p>기사 페이지로 이동 중입니다...</p>
