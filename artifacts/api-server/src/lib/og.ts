@@ -13,9 +13,16 @@ function escapeAttr(s: string): string {
 
 function withCacheBuster(url: string, version: string | number): string {
   if (!url) return url;
-  if (!/^https?:\/\//i.test(url)) return url;
   const sep = url.includes("?") ? "&" : "?";
   return `${url}${sep}v=${encodeURIComponent(String(version))}`;
+}
+
+function toAbsoluteUrl(url: string, origin: string): string {
+  if (!url) return url;
+  if (/^https?:\/\//i.test(url)) return url;
+  if (url.startsWith("//")) return `https:${url}`;
+  if (url.startsWith("/")) return `${origin}${url}`;
+  return `${origin}/${url}`;
 }
 
 export type MetaValues = {
@@ -42,11 +49,13 @@ export function injectOG(html: string, req: Request, m: MetaValues): string {
   const proto =
     (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
   const host = req.headers["x-forwarded-host"] || req.headers.host || "";
-  const url = `${proto}://${host}/`;
-  // Append cache-buster to image URL so crawlers like Naver Band treat it as
-  // a fresh image whenever meta is updated (they cache by image URL).
-  const versionedImage = m.image
-    ? withCacheBuster(m.image, m.updatedAt.getTime())
+  const origin = `${proto}://${host}`;
+  const url = `${origin}/`;
+  // Crawlers (especially Naver Band) REQUIRE absolute https URLs for og:image.
+  // Also append cache-buster so they treat it as a fresh image on meta updates.
+  const absoluteImage = m.image ? toAbsoluteUrl(m.image, origin) : "";
+  const versionedImage = absoluteImage
+    ? withCacheBuster(absoluteImage, m.updatedAt.getTime())
     : "";
 
   const tags = [

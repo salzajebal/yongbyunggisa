@@ -18,15 +18,24 @@ router.get("/share", async (req, res) => {
 
     const title = meta.title;
     const description = meta.description;
-    const baseImage = meta.image;
-    const image = baseImage
-      ? `${baseImage}${baseImage.includes("?") ? "&" : "?"}v=${meta.updatedAt.getTime()}`
-      : "";
-
     const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
     const host = req.headers["x-forwarded-host"] || req.headers.host || "";
-    const articleUrl = `${proto}://${host}/`;
-    const shareUrl = `${proto}://${host}/share`;
+    const origin = `${proto}://${host}`;
+    const articleUrl = `${origin}/`;
+    const shareUrl = `${origin}/share`;
+
+    // og:image must be absolute https URL (required by Naver Band & strict crawlers).
+    let absoluteImage = meta.image;
+    if (absoluteImage && !/^https?:\/\//i.test(absoluteImage)) {
+      absoluteImage = absoluteImage.startsWith("//")
+        ? `https:${absoluteImage}`
+        : absoluteImage.startsWith("/")
+          ? `${origin}${absoluteImage}`
+          : `${origin}/${absoluteImage}`;
+    }
+    const image = absoluteImage
+      ? `${absoluteImage}${absoluteImage.includes("?") ? "&" : "?"}v=${meta.updatedAt.getTime()}`
+      : "";
 
     const html = `<!DOCTYPE html>
 <html lang="ko">
