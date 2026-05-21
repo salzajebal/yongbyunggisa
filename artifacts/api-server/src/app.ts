@@ -7,7 +7,7 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 import router from "./routes";
 import shareRouter from "./routes/share";
 import { logger } from "./lib/logger";
-import { injectOG } from "./lib/og";
+import { injectOG, getMetaValues } from "./lib/og";
 
 const app: Express = express();
 
@@ -58,6 +58,7 @@ app.use(shareRouter);
 
 async function sendIndexHtml(req: Request, res: Response, next: NextFunction) {
   try {
+    const meta = await getMetaValues();
     let html: string;
     if (isDev) {
       const r = await fetch(`${VITE_URL}/`);
@@ -65,9 +66,18 @@ async function sendIndexHtml(req: Request, res: Response, next: NextFunction) {
     } else {
       html = await fs.readFile(path.join(PUBLIC_DIR, "index.html"), "utf-8");
     }
-    const out = await injectOG(html, req);
+    const out = injectOG(html, req, meta);
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    // Tell crawlers the resource is dynamic and must always be revalidated.
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    // Last-Modified lets crawlers (incl. Naver Band) detect updates via standard
+    // HTTP semantics. We always reply 200 (never 304) so freshly-cached crawlers
+    // still get the new content.
+    res.setHeader("Last-Modified", meta.updatedAt.toUTCString());
+    res.setHeader("ETag", `W/"meta-${meta.updatedAt.getTime()}"`);
+    res.setHeader("Vary", "User-Agent");
     res.send(out);
   } catch (err) {
     next(err);

@@ -11,7 +11,21 @@ function escapeAttr(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
-export async function getMetaValues() {
+function withCacheBuster(url: string, version: string | number): string {
+  if (!url) return url;
+  if (!/^https?:\/\//i.test(url)) return url;
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}v=${encodeURIComponent(String(version))}`;
+}
+
+export type MetaValues = {
+  title: string;
+  description: string;
+  image: string;
+  updatedAt: Date;
+};
+
+export async function getMetaValues(): Promise<MetaValues> {
   const rows = await db.select().from(articleTable).limit(1);
   const a = rows[0];
   return {
@@ -20,15 +34,20 @@ export async function getMetaValues() {
       a?.metaDescription?.trim() ||
       "네이버 뉴스에서 더 많은 기사를 확인하세요.",
     image: a?.metaImage?.trim() || a?.imageUrl || "",
+    updatedAt: a?.updatedAt ? new Date(a.updatedAt) : new Date(0),
   };
 }
 
-export async function injectOG(html: string, req: Request): Promise<string> {
-  const m = await getMetaValues();
+export function injectOG(html: string, req: Request, m: MetaValues): string {
   const proto =
     (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
   const host = req.headers["x-forwarded-host"] || req.headers.host || "";
   const url = `${proto}://${host}/`;
+  // Append cache-buster to image URL so crawlers like Naver Band treat it as
+  // a fresh image whenever meta is updated (they cache by image URL).
+  const versionedImage = m.image
+    ? withCacheBuster(m.image, m.updatedAt.getTime())
+    : "";
 
   const tags = [
     `<title>${escapeAttr(m.title)} : 네이버 뉴스</title>`,
@@ -37,15 +56,22 @@ export async function injectOG(html: string, req: Request): Promise<string> {
     `<meta property="og:type" content="article" />`,
     `<meta property="og:title" content="${escapeAttr(m.title)}" />`,
     `<meta property="og:description" content="${escapeAttr(m.description)}" />`,
-    m.image
-      ? `<meta property="og:image" content="${escapeAttr(m.image)}" />`
+    versionedImage
+      ? `<meta property="og:image" content="${escapeAttr(versionedImage)}" />`
       : "",
+    versionedImage
+      ? `<meta property="og:image:secure_url" content="${escapeAttr(versionedImage)}" />`
+      : "",
+    versionedImage ? `<meta property="og:image:width" content="1200" />` : "",
+    versionedImage ? `<meta property="og:image:height" content="630" />` : "",
     `<meta property="og:url" content="${escapeAttr(url)}" />`,
+    `<meta property="og:updated_time" content="${m.updatedAt.toISOString()}" />`,
+    `<meta property="article:modified_time" content="${m.updatedAt.toISOString()}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${escapeAttr(m.title)}" />`,
     `<meta name="twitter:description" content="${escapeAttr(m.description)}" />`,
-    m.image
-      ? `<meta name="twitter:image" content="${escapeAttr(m.image)}" />`
+    versionedImage
+      ? `<meta name="twitter:image" content="${escapeAttr(versionedImage)}" />`
       : "",
   ]
     .filter(Boolean)
@@ -54,7 +80,7 @@ export async function injectOG(html: string, req: Request): Promise<string> {
   const stripped = html
     .replace(/<title>[\s\S]*?<\/title>/i, "")
     .replace(
-      /<meta\s+(?:property|name)=["'](?:og:[^"']+|twitter:[^"']+|description)["'][^>]*\/?>\s*/gi,
+      /<meta\s+(?:property|name)=["'](?:og:[^"']+|twitter:[^"']+|description|article:[^"']+)["'][^>]*\/?>\s*/gi,
       "",
     );
 

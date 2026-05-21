@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { db } from "@workspace/db";
-import { articleTable } from "@workspace/db/schema";
+import { getMetaValues } from "../lib/og";
 
 const router: IRouter = Router();
 
@@ -15,17 +14,14 @@ function escapeHtml(s: string): string {
 
 router.get("/share", async (req, res) => {
   try {
-    const rows = await db.select().from(articleTable).limit(1);
-    const article = rows[0];
+    const meta = await getMetaValues();
 
-    const title = article?.metaTitle?.trim() || article?.title || "네이버 뉴스";
-    const description =
-      article?.metaDescription?.trim() ||
-      "네이버 뉴스에서 더 많은 기사를 확인하세요.";
-    const image =
-      article?.metaImage?.trim() ||
-      article?.imageUrl ||
-      "";
+    const title = meta.title;
+    const description = meta.description;
+    const baseImage = meta.image;
+    const image = baseImage
+      ? `${baseImage}${baseImage.includes("?") ? "&" : "?"}v=${meta.updatedAt.getTime()}`
+      : "";
 
     const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol || "https";
     const host = req.headers["x-forwarded-host"] || req.headers.host || "";
@@ -60,7 +56,12 @@ ${image ? `<meta name="twitter:image" content="${escapeHtml(image)}" />` : ""}
 </html>`;
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    res.setHeader("Last-Modified", meta.updatedAt.toUTCString());
+    res.setHeader("ETag", `W/"meta-${meta.updatedAt.getTime()}"`);
+    res.setHeader("Vary", "User-Agent");
     res.send(html);
   } catch (err) {
     req.log.error({ err }, "Failed to render share page");
