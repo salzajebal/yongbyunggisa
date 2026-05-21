@@ -430,21 +430,21 @@ export default function AdminPage() {
                   if (url) setEditMetaImage(url);
                 }} />
               </label>
-              <div style={{ marginTop: 16, padding: 12, backgroundColor: "#fffbeb", borderRadius: 8, border: "1px solid #fde68a" }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#92400e", marginBottom: 6 }}>📤 카카오톡/SNS 공유 전용 링크</div>
-                <p style={{ fontSize: 12, color: "#78350f", marginBottom: 8, lineHeight: 1.5 }}>
-                  아래 링크로 공유하면 위에서 설정한 제목·설명·이미지가 미리보기 카드에 표시됩니다. 일반 사이트 URL(<code>/</code>)은 정적 HTML이라 변경된 메타 정보가 반영되지 않습니다.
+              <div style={{ marginTop: 16, padding: 12, backgroundColor: "#ecfdf5", borderRadius: 8, border: "1px solid #a7f3d0" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#065f46", marginBottom: 6 }}>📤 공유 링크</div>
+                <p style={{ fontSize: 12, color: "#065f46", marginBottom: 8, lineHeight: 1.5 }}>
+                  아래 사이트 주소를 카카오톡·텔레그램·페이스북 등에 그대로 공유하면 위에서 설정한 제목·설명·이미지가 미리보기 카드에 자동으로 표시됩니다.
                 </p>
                 <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                   <input
                     readOnly
-                    value={typeof window !== "undefined" ? `${window.location.origin}/share` : "/share"}
+                    value={typeof window !== "undefined" ? `${window.location.origin}/` : "/"}
                     onFocus={(e) => e.currentTarget.select()}
                     style={{ ...inputStyle, fontSize: 12, fontFamily: "monospace", backgroundColor: "#fff" }}
                   />
                   <button
                     onClick={() => {
-                      const url = `${window.location.origin}/share`;
+                      const url = `${window.location.origin}/`;
                       navigator.clipboard?.writeText(url).then(
                         () => alert("공유 링크가 복사되었습니다."),
                         () => alert("복사에 실패했습니다. 직접 선택해서 복사하세요."),
@@ -455,9 +455,14 @@ export default function AdminPage() {
                     📋 복사
                   </button>
                 </div>
-                <p style={{ fontSize: 11, color: "#92400e", marginTop: 8, lineHeight: 1.5 }}>
-                  💡 카카오톡은 이미 한 번 공유한 URL의 미리보기를 캐싱합니다. 변경사항이 즉시 반영되지 않으면{" "}
-                  <a href="https://developers.kakao.com/tool/clear/og" target="_blank" rel="noopener noreferrer" style={{ color: "#92400e", textDecoration: "underline" }}>카카오 캐시 초기화 도구</a>로 재스크랩하세요.
+                <p style={{ fontSize: 11, color: "#065f46", marginTop: 8, lineHeight: 1.5 }}>
+                  💡 메신저가 옛날 미리보기를 캐싱하고 있다면:{" "}
+                  <a href="https://developers.kakao.com/tool/clear/og" target="_blank" rel="noopener noreferrer" style={{ color: "#065f46", textDecoration: "underline" }}>카카오 캐시 초기화</a>
+                  {" / "}
+                  <a href="https://t.me/WebpageBot" target="_blank" rel="noopener noreferrer" style={{ color: "#065f46", textDecoration: "underline" }}>텔레그램 @WebpageBot</a>
+                  {" / "}
+                  <a href="https://developers.facebook.com/tools/debug/" target="_blank" rel="noopener noreferrer" style={{ color: "#065f46", textDecoration: "underline" }}>페이스북 디버거</a>
+                  에서 재스크랩하세요.
                 </p>
               </div>
 

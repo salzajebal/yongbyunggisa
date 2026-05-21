@@ -1,5 +1,5 @@
 kind = "web"
-previewPath = "/"
+previewPath = "/_naver_vite_internal"
 title = "네이버 뉴스 클론"
 version = "1.0.0"
 id = "artifacts/naver-news"
@@ -11,7 +11,7 @@ version = "1.0.0"
 
 [[services]]
 name = "web"
-paths = [ "/" ]
+paths = [ "/_naver_vite_internal" ]
 localPort = 23849
 
 [services.development]
