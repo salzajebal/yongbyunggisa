@@ -47,7 +47,7 @@ const reactionDefs = [
   { label: "후속강추", count: 25 },
 ];
 
-const navTabs = ["주요뉴스", "프리미엄", "이슈", "클립", "지면", "정치", "경제", "사회", "생활", "세계", "IT", "사/칼럼", "신문보기", "랭킹", "MY"];
+const COMMENTS_PER_PAGE = 5;
 
 const commentDemographics = {
   gender: { male: 81, female: 19 },
@@ -90,6 +90,7 @@ export default function NaverNewsPage() {
   const [article, setArticle] = useState<Article | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(COMMENTS_PER_PAGE);
 
   useEffect(() => {
     async function load() {
@@ -146,15 +147,6 @@ export default function NaverNewsPage() {
             +구독
           </button>
         </div>
-        <nav style={{ overflowX: "auto", whiteSpace: "nowrap", borderTop: "1px solid #e5e5e5" }}>
-          <div style={{ display: "inline-flex", padding: "0 20px" }}>
-            {navTabs.map((tab) => (
-              <a key={tab} href="#" style={{ display: "inline-block", padding: "10px 14px", fontSize: 14, color: tab === "경제" ? "#1a1a1a" : "#595959", fontWeight: tab === "경제" ? 700 : 400, borderBottom: tab === "경제" ? "2px solid #1a1a1a" : "2px solid transparent", textDecoration: "none" }} onClick={(e) => e.preventDefault()}>
-                {tab}
-              </a>
-            ))}
-          </div>
-        </nav>
       </header>
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px", display: "flex", gap: 30, alignItems: "flex-start" }}>
@@ -358,7 +350,7 @@ export default function NaverNewsPage() {
 
                 {/* Comments list */}
                 {comments.length > 0 ? (
-                  comments.map((c) => (
+                  comments.slice(0, visibleCount).map((c) => (
                     <div key={c.id} style={{ padding: "16px 0", borderBottom: "1px solid #f0f0f0" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                         <div style={{ width: 32, height: 32, borderRadius: "50%", backgroundColor: "#e5e5e5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#999" }}>👤</div>
@@ -376,33 +368,24 @@ export default function NaverNewsPage() {
                     </div>
                   ))
                 ) : (
-                  // Placeholder comments
-                  [
-                    { user: "soo***", time: "5시간 전", content: "파업해도 됩니다. 적자인 사업부에 수억원 성과급은 말이 안 되죠.", likes: 1247, dislikes: 45 },
-                    { user: "kim***", time: "4시간 전", content: "회사 입장도 이해가 되네요. 적자 사업부에 수억 성과급은 과한 요구 같습니다.", likes: 892, dislikes: 123 },
-                    { user: "lee***", time: "3시간 전", content: "노사가 합의점을 찾길 바랍니다. 파업은 모두에게 좋지 않습니다.", likes: 634, dislikes: 28 },
-                  ].map((c, i) => (
-                    <div key={i} style={{ padding: "16px 0", borderBottom: "1px solid #f0f0f0" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                        <div style={{ width: 32, height: 32, borderRadius: "50%", backgroundColor: "#e5e5e5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#999" }}>👤</div>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 600 }}>{c.user}</div>
-                          <div style={{ fontSize: 12, color: "#999" }}>{c.time}</div>
-                        </div>
-                      </div>
-                      <p style={{ fontSize: 14, lineHeight: 1.6, marginBottom: 10, paddingLeft: 40 }}>{c.content}</p>
-                      <div style={{ display: "flex", gap: 12, paddingLeft: 40 }}>
-                        <button style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 3, padding: "3px 10px", fontSize: 12, cursor: "pointer", color: "#595959" }}>👍 {c.likes}</button>
-                        <button style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 3, padding: "3px 10px", fontSize: 12, cursor: "pointer", color: "#595959" }}>👎 {c.dislikes}</button>
-                        <button style={{ background: "none", border: "none", fontSize: 12, cursor: "pointer", color: "#999" }}>답글 쓰기</button>
-                      </div>
-                    </div>
-                  ))
+                  <div style={{ padding: "30px 0", textAlign: "center", color: "#9ca3af", fontSize: 14 }}>
+                    아직 등록된 댓글이 없습니다.
+                  </div>
                 )}
 
-                <button style={{ width: "100%", padding: "12px 0", border: "1px solid #e5e5e5", borderRadius: 4, background: "#fff", fontSize: 14, cursor: "pointer", fontWeight: 600, marginTop: 10 }}>
-                  댓글 더보기
-                </button>
+                {comments.length > visibleCount && (
+                  <button
+                    onClick={() => setVisibleCount((prev) => prev + COMMENTS_PER_PAGE)}
+                    style={{ width: "100%", padding: "12px 0", border: "1px solid #e5e5e5", borderRadius: 4, background: "#fff", fontSize: 14, cursor: "pointer", fontWeight: 600, marginTop: 10 }}
+                  >
+                    댓글 더보기 ({comments.length - visibleCount}개 남음)
+                  </button>
+                )}
+                {comments.length > 0 && comments.length <= visibleCount && (
+                  <div style={{ textAlign: "center", padding: "16px 0", fontSize: 13, color: "#9ca3af" }}>
+                    모든 댓글을 불러왔습니다.
+                  </div>
+                )}
               </div>
             </>
           )}
