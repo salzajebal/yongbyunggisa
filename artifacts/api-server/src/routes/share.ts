@@ -38,10 +38,12 @@ router.get("/share", async (req, res) => {
       : "";
 
     const html = `<!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" translate="no">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="google" content="notranslate" />
+<meta http-equiv="Content-Language" content="ko" />
 <title>${escapeHtml(title)} : 네이버 뉴스</title>
 <meta name="description" content="${escapeHtml(description)}" />
 <meta property="og:site_name" content="네이버 뉴스" />
