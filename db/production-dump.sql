@@ -1,5 +1,5 @@
 -- Production database backup
--- Generated: 2026-09-07T15:00:02.715Z
+-- Generated: 2026-09-10T03:00:06.838Z
 -- Restore: run against schema-initialized database
 --   (apply schema first: pnpm --filter @workspace/db run push)
 
